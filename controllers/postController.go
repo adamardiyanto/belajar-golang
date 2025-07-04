@@ -49,5 +49,19 @@ func StorePost(c *gin.Context) {
 			}
 			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"errors": out})
 		}
+		return
 	}
+
+	post := models.Post{
+		Title:   input.Title,
+		Content: input.Content,
+	}
+	models.DB.Create(&post)
+
+	c.JSON(200, gin.H{
+		"success": true,
+		"message": "Post Created Successfully",
+		"data":    post,
+	})
+
 }

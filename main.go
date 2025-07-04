@@ -23,5 +23,7 @@ func main() {
 	//membuat route get all posts
 	router.GET("/api/posts", controllers.AllPosts)
 
+	router.POST("/api/posts", controllers.StorePost)
+
 	router.Run(":3000")
 }
