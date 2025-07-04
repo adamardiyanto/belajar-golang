@@ -63,5 +63,61 @@ func StorePost(c *gin.Context) {
 		"message": "Post Created Successfully",
 		"data":    post,
 	})
+}
 
+func GetPostById(c *gin.Context) {
+	var post models.Post
+	if err := models.DB.Where("id=?", c.Param("id")).First(&post).Error; err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Post not Found"})
+		return
+	}
+
+	c.JSON(200, gin.H{
+		"success": true,
+		"message": "Detail Post with ID : " + c.Param("id"),
+		"data":    post,
+	})
+}
+
+func UpdatePost(c *gin.Context) {
+	var post models.Post
+	if err := models.DB.Where("id=?", c.Param("id")).First(&post).Error; err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Post not Found"})
+		return
+	}
+
+	var input ValidatePostInput
+	if err := c.ShouldBindJSON(&input); err != nil {
+		var ve validator.ValidationErrors
+		if errors.As(err, &ve) {
+			out := make([]ErrorMsg, len(ve))
+			for i, fe := range ve {
+				out[i] = ErrorMsg{fe.Field(), GetErrorMsg(fe)}
+			}
+			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"errors": out})
+		}
+		return
+	}
+
+	models.DB.Model(&post).Updates(input)
+
+	c.JSON(200, gin.H{
+		"success": true,
+		"message": "Post Updated Successfully",
+		"data":    post,
+	})
+}
+
+func DeletePostById(c *gin.Context) {
+	var post models.Post
+	if err := models.DB.Where("id=?", c.Param("id")).First(&post).Error; err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Post not Found"})
+		return
+	}
+
+	models.DB.Delete(&post)
+	c.JSON(200, gin.H{
+		"success": true,
+		"message": "Post Deleted Successfully",
+	})
 }
