@@ -14,11 +14,6 @@ type ValidatePostInput struct {
 	Content string `json:"content" binding:"required"`
 }
 
-type ErrorMsg struct {
-	Field   string `json:"field"`
-	Message string `json:"message`
-}
-
 func AllPosts(c *gin.Context) {
 	var posts []models.Post
 	models.DB.Find(&posts)
@@ -28,14 +23,6 @@ func AllPosts(c *gin.Context) {
 		"message": "List All Posts",
 		"data":    posts,
 	})
-}
-
-func GetErrorMsg(fe validator.FieldError) string {
-	switch fe.Tag() {
-	case "required":
-		return "this field is required"
-	}
-	return "unknow error"
 }
 
 func StorePost(c *gin.Context) {
