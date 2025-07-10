@@ -16,23 +16,44 @@
 
         function loadTodos() {
             fetch(`${api}/todos`)
-            .then((res) => res.json())
+            .then((res) => {
+                if (!res.ok) {
+                // Handle HTTP errors (e.g. 404, 500)
+                throw new Error(`HTTP error! status: ${res.status}`);
+                }
+                return res.json();
+            })
             .then((data) => {
                 const list = document.getElementById("todo-list");
                 list.innerHTML = "";
-                if(data.data.length == 0) {
-                    list.innerHTML += `Todo List Kosong`
+
+                if (!data || !data.data || data.data.length === 0) {
+                list.innerHTML = `Todo List Kosong`;
+                return;
                 }
+
                 data.data.forEach((todo) => {
                 list.innerHTML += `<li>${todo.title} ${todo.done ? "(done)" : ""}
-                <button onclick="markDone(${todo.id})">Done</button>
-                <button onclick="deleteTodo(${todo.id})">Delete</button></li>`;
+                    <button onclick="markDone(${todo.id})">Done</button>
+                    <button onclick="deleteTodo(${todo.id})">Delete</button></li>`;
                 });
+            })
+            .catch((error) => {
+                // Handle network or other errors
+                const list = document.getElementById("todo-list");
+                list.innerHTML = `<li style="color:red;">Gagal memuat data: ${error.message}</li>`;
+                console.error("Fetch error:", error);
             });
         }
 
         function addTodo() {
-            const title = document.getElementById("todo-input").value;
+            const title = document.getElementById("todo-input").value.trim();
+
+            // 1. Validate input
+            if (title === "") {
+                alert("Judul todo tidak boleh kosong.");
+                return;
+            }
             fetch(`${api}/todos`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
