@@ -4,6 +4,7 @@ import (
 	"backend-api/controllers"
 	"backend-api/models"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
 
@@ -13,10 +14,16 @@ func main() {
 
 	models.ConnectDB()
 
+	router.Use(cors.New(cors.Config{
+		AllowOrigins:     []string{"http://localhost:3000"}, // frontend URL
+		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE"},
+		AllowHeaders:     []string{"Origin", "Content-Type"},
+		AllowCredentials: true,
+	}))
+
+	router.Static("/public", "./public")
 	router.GET("/", func(c *gin.Context) {
-		c.JSON(200, gin.H{
-			"message": "HELLLOOOO",
-		})
+		c.File("./public/index.html")
 	})
 
 	//membuat route get all posts
