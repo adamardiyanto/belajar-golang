@@ -64,27 +64,14 @@ func GetTodoById(c *gin.Context) {
 	})
 }
 
-func UpdateTodo(c *gin.Context) {
+func MarkDoneTodo(c *gin.Context) {
 	var todo models.Todo
 	if err := models.DB.Where("id=?", c.Param("id")).First(&todo).Error; err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "todo not Found"})
 		return
 	}
 
-	var input ValidateTodoInput
-	if err := c.ShouldBindJSON(&input); err != nil {
-		var ve validator.ValidationErrors
-		if errors.As(err, &ve) {
-			out := make([]ErrorMsg, len(ve))
-			for i, fe := range ve {
-				out[i] = ErrorMsg{fe.Field(), GetErrorMsg(fe)}
-			}
-			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"errors": out})
-		}
-		return
-	}
-
-	models.DB.Model(&todo).Updates(input)
+	models.DB.Model(&todo).Update("Done", true)
 
 	c.JSON(200, gin.H{
 		"success": true,

@@ -29,7 +29,7 @@ func main() {
 	router.GET("/api/todos", controllers.AllTodo)
 	router.POST("/api/todos", controllers.StoreTodo)
 	router.GET("/api/todos/:id", controllers.GetTodoById)
-	router.PUT("/api/todos/:id", controllers.UpdateTodo)
+	router.PUT("/api/todos/:id/done", controllers.MarkDoneTodo)
 	router.DELETE("/api/todos/:id", controllers.DeleteTodoById)
 
 	router.Run(":3000")
