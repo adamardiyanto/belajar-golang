@@ -1,0 +1,54 @@
+<!-- public/index.html -->
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Todo App</title>
+    </head>
+    <body>
+        <h1>Todo List</h1>
+        <ul id="todo-list"></ul>
+
+        <input type="text" id="todo-input" placeholder="New todo" />
+        <button onclick="addTodo()">Add</button>
+
+        <script>
+        const api = "http://localhost:3000/api";
+
+        function loadTodos() {
+            fetch(`${api}/todos`)
+            .then((res) => res.json())
+            .then((data) => {
+                const list = document.getElementById("todo-list");
+                list.innerHTML = "";
+                if(data.data.length == 0) {
+                    list.innerHTML += `Todo List Kosong`
+                }
+                data.data.forEach((todo) => {
+                list.innerHTML += `<li>${todo.title} ${todo.done ? "(done)" : ""}
+                <button onclick="markDone(${todo.id})">Done</button>
+                <button onclick="deleteTodo(${todo.id})">Delete</button></li>`;
+                });
+            });
+        }
+
+        function addTodo() {
+            const title = document.getElementById("todo-input").value;
+            fetch(`${api}/todos`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ title, done: false }),
+            }).then(loadTodos);
+        }
+
+        function markDone(id) {
+            fetch(`${api}/todos/${id}/done`, { method: "PUT" }).then(loadTodos);
+        }
+
+        function deleteTodo(id) {
+            fetch(`${api}/todos/${id}`, { method: "DELETE" }).then(loadTodos);
+        }
+
+        loadTodos();
+        </script>
+    </body>
+</html>
